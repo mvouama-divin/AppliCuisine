@@ -81,7 +81,7 @@ const Index = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="gradient-text">Découvrez</span> vos prochaines recettes pour deguster
+            <span className="gradient-text">Découvrez</span> vos prochaines recettes
           </h1>
           <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
             Transformez les ingrédients de votre garde-manger en délicieux repas avec nos recommandations personnalisées.
