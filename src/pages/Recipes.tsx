@@ -106,6 +106,8 @@ const Recipes = () => {
                   key={recipe.id}
                   recipe={recipe}
                   onSelect={handleRecipeSelect}
+                  onViewRecipe={handleViewRecipe}
+                  onViewMissingIngredients={handleViewMissingIngredients}
                   availableIngredients={mockUserPantry.map(ing => ing.name)}
                 />
               ))}
