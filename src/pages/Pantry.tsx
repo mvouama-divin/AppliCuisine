@@ -164,13 +164,13 @@ const Pantry = () => {
         <Card className="bg-gradient-cuisine text-white border-0 text-center p-8">
           <CardContent>
             <h3 className="text-xl font-semibold mb-2">
-              Connectez-vous à Supabase
+              Connecté à Supabase ✅
             </h3>
             <p className="mb-4">
-              Pour sauvegarder vos ingrédients et synchroniser votre garde-manger sur tous vos appareils.
+              Votre garde-manger est maintenant synchronisé avec la base de données.
             </p>
             <Button variant="secondary" className="bg-white text-cuisine-orange hover:bg-cuisine-cream">
-              Intégrer Supabase
+              Base de données active
             </Button>
           </CardContent>
         </Card>

@@ -2,10 +2,10 @@
 export interface Ingredient {
   id: string;
   name: string;
-  category: 'légumes' | 'fruits' | 'viandes' | 'poissons' | 'céréales' | 'légumineuses' | 'produits_laitiers' | 'épices' | 'autres';
+  category: 'légumes' | 'fruits' | 'viandes' | 'poissons' | 'céréales' | 'légumineuses' | 'produits_laitiers' | 'épices' | 'condiments' | 'autres';
   quantity: number;
-  unit: 'kg' | 'g' | 'l' | 'ml' | 'pièce' | 'cuillère';
-  expirationDate?: Date;
+  unit: 'kg' | 'g' | 'l' | 'ml' | 'pièce' | 'cuillère' | 'tasse' | 'sachet' | 'boîte';
+  expiryDate?: Date;
   season?: 'printemps' | 'été' | 'automne' | 'hiver';
   origin?: 'local' | 'national' | 'import';
   organic: boolean;
