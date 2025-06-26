@@ -1,14 +1,67 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import RecipeCard from '@/components/RecipeCard';
+import RecipeDetailDialog from '@/components/RecipeDetailDialog';
+import MissingIngredientsDialog from '@/components/MissingIngredientsDialog';
+import CreateRecipeDialog from '@/components/CreateRecipeDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRecipes } from '@/hooks/useRecipes';
+import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Plus } from 'lucide-react';
+import { Recipe, Ingredient } from '@/types';
 
 const Recipes = () => {
-  const { recipes, loading } = useRecipes();
+  const { recipes, loading, addRecipe } = useRecipes();
+  const { toast } = useToast();
+  
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [showRecipeDetail, setShowRecipeDetail] = useState(false);
+  const [showMissingIngredients, setShowMissingIngredients] = useState(false);
+  const [showCreateRecipe, setShowCreateRecipe] = useState(false);
+
+  // Mock du garde-manger utilisateur - à remplacer par les vraies données
+  const mockUserPantry: Ingredient[] = [
+    { id: '1', name: 'Tomate', category: 'légumes', quantity: 3, unit: 'pièce', organic: false },
+    { id: '2', name: 'Oignon', category: 'légumes', quantity: 2, unit: 'pièce', organic: false },
+    { id: '3', name: 'Ail', category: 'épices', quantity: 5, unit: 'pièce', organic: false },
+  ];
+
+  const handleRecipeSelect = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    
+    // Vérifier si tous les ingrédients sont disponibles
+    const missingIngredients = recipe.ingredients.filter(recipeIngredient =>
+      !mockUserPantry.some(available => 
+        available.name.toLowerCase().includes(recipeIngredient.name.toLowerCase())
+      )
+    );
+
+    if (missingIngredients.length === 0) {
+      setShowRecipeDetail(true);
+    } else {
+      setShowMissingIngredients(true);
+    }
+  };
+
+  const handleViewRecipe = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setShowRecipeDetail(true);
+  };
+
+  const handleViewMissingIngredients = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setShowMissingIngredients(true);
+  };
+
+  const handleCreateRecipe = (newRecipe: Recipe) => {
+    addRecipe(newRecipe);
+    toast({
+      title: "Recette créée !",
+      description: `${newRecipe.title} a été ajoutée à vos recettes.`,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-cuisine-cream">
@@ -24,7 +77,10 @@ const Recipes = () => {
               Vos recettes favorites et créations personnelles
             </p>
           </div>
-          <Button className="bg-cuisine-green hover:bg-cuisine-green-dark">
+          <Button 
+            className="bg-cuisine-green hover:bg-cuisine-green-dark"
+            onClick={() => setShowCreateRecipe(true)}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Créer une recette
           </Button>
@@ -45,11 +101,12 @@ const Recipes = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-              {recipes.slice(0, 3).map((recipe) => (
+              {recipes.map((recipe) => (
                 <RecipeCard
                   key={recipe.id}
                   recipe={recipe}
-                  onSelect={(recipe) => console.log('Recette sélectionnée:', recipe)}
+                  onSelect={handleRecipeSelect}
+                  availableIngredients={mockUserPantry.map(ing => ing.name)}
                 />
               ))}
             </div>
@@ -60,13 +117,42 @@ const Recipes = () => {
               <p className="text-muted-foreground mb-4">
                 Ajoutez vos créations culinaires et partagez-les avec la communauté
               </p>
-              <Button className="bg-cuisine-orange hover:bg-cuisine-orange-dark">
+              <Button 
+                className="bg-cuisine-orange hover:bg-cuisine-orange-dark"
+                onClick={() => setShowCreateRecipe(true)}
+              >
                 Commencer
               </Button>
             </Card>
           </>
         )}
       </main>
+
+      {/* Dialogs */}
+      <RecipeDetailDialog
+        recipe={selectedRecipe}
+        isOpen={showRecipeDetail}
+        onClose={() => {
+          setShowRecipeDetail(false);
+          setSelectedRecipe(null);
+        }}
+      />
+
+      <MissingIngredientsDialog
+        recipe={selectedRecipe}
+        availableIngredients={mockUserPantry}
+        isOpen={showMissingIngredients}
+        onClose={() => {
+          setShowMissingIngredients(false);
+          setSelectedRecipe(null);
+        }}
+      />
+
+      <CreateRecipeDialog
+        isOpen={showCreateRecipe}
+        onClose={() => setShowCreateRecipe(false)}
+        onSave={handleCreateRecipe}
+      />
     </div>
   );
 };

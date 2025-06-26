@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Recipe, SearchFilters, Ingredient } from '@/types';
 
@@ -423,6 +424,10 @@ export const useRecipes = () => {
     fetchRecipes();
   }, []);
 
+  const addRecipe = (newRecipe: Recipe) => {
+    setRecipes(prevRecipes => [newRecipe, ...prevRecipes]);
+  };
+
   const searchRecipes = (filters: SearchFilters, userPantry?: Ingredient[]) => {
     let filteredRecipes = recipes;
 
@@ -463,6 +468,7 @@ export const useRecipes = () => {
     recipes,
     loading,
     error,
+    addRecipe,
     searchRecipes
   };
 };

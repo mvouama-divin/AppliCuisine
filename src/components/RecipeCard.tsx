@@ -3,16 +3,24 @@ import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Users, Star, ChefHat, Heart } from 'lucide-react';
+import { Clock, Users, Star, ChefHat, Heart, Eye, AlertCircle } from 'lucide-react';
 import { Recipe } from '@/types';
 
 interface RecipeCardProps {
   recipe: Recipe;
   onSelect?: (recipe: Recipe) => void;
+  onViewRecipe?: (recipe: Recipe) => void;
+  onViewMissingIngredients?: (recipe: Recipe) => void;
   availableIngredients?: string[];
 }
 
-const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onSelect, availableIngredients = [] }) => {
+const RecipeCard: React.FC<RecipeCardProps> = ({ 
+  recipe, 
+  onSelect, 
+  onViewRecipe,
+  onViewMissingIngredients,
+  availableIngredients = [] 
+}) => {
   const totalTime = recipe.prepTime + recipe.cookTime;
   
   const availableIngredientsCount = recipe.ingredients.filter(ingredient =>
@@ -106,7 +114,31 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onSelect, availableIngr
       </CardContent>
 
       {/* Footer */}
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-4 pt-0 space-y-2">
+        <div className="flex gap-2 w-full">
+          <Button
+            onClick={() => onViewRecipe?.(recipe)}
+            variant="outline"
+            size="sm"
+            className="flex-1"
+          >
+            <Eye className="w-4 h-4 mr-1" />
+            Voir la recette
+          </Button>
+          
+          {!canMakeRecipe && (
+            <Button
+              onClick={() => onViewMissingIngredients?.(recipe)}
+              variant="outline"
+              size="sm"
+              className="flex-1 text-cuisine-orange border-cuisine-orange hover:bg-cuisine-orange hover:text-white"
+            >
+              <AlertCircle className="w-4 h-4 mr-1" />
+              Manquants
+            </Button>
+          )}
+        </div>
+        
         <Button
           onClick={() => onSelect?.(recipe)}
           className={`w-full transition-all duration-200 ${
@@ -115,7 +147,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onSelect, availableIngr
               : 'bg-cuisine-orange hover:bg-cuisine-orange-dark text-white'
           }`}
         >
-          {canMakeRecipe ? 'Cuisiner maintenant' : 'Voir la recette'}
+          {canMakeRecipe ? 'Cuisiner maintenant' : 'Voir les détails'}
         </Button>
       </CardFooter>
     </Card>
