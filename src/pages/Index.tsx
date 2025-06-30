@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import RecipeCard from '@/components/RecipeCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, ChefHat, Clock, Users } from 'lucide-react';
+import { Search, ChefHat, Clock, Users, Star, TrendingUp } from 'lucide-react';
 import { useRecipes } from '@/hooks/useRecipes';
 import { Recipe, SearchFilters } from '@/types';
 import RecipeDetailDialog from '@/components/RecipeDetailDialog';
@@ -40,6 +41,7 @@ const Index = () => {
             <p className="mt-4 text-lg">Chargement des recettes...</p>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -53,6 +55,7 @@ const Index = () => {
             <p className="text-red-600 text-lg">{error}</p>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -84,6 +87,35 @@ const Index = () => {
             <Button onClick={handleSearch} className="bg-yellow-500 hover:bg-yellow-600 text-gray-900">
               <Search className="w-4 h-4" />
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div className="p-6">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ChefHat className="w-8 h-8 text-orange-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">{recipes.length}+</h3>
+              <p className="text-gray-600">Recettes disponibles</p>
+            </div>
+            <div className="p-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-green-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">4.8/5</h3>
+              <p className="text-gray-600">Note moyenne</p>
+            </div>
+            <div className="p-6">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-blue-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">1000+</h3>
+              <p className="text-gray-600">Utilisateurs actifs</p>
+            </div>
           </div>
         </div>
       </section>
@@ -131,11 +163,31 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Call to Action */}
+      <section className="py-16 bg-orange-50">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">
+            Vous avez une recette à partager ?
+          </h2>
+          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+            Contactez-nous pour suggérer vos recettes favorites ou demander des recettes spécifiques
+          </p>
+          <Button 
+            onClick={() => window.location.href = '/contact'}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg"
+          >
+            Nous contacter
+          </Button>
+        </div>
+      </section>
+
       <RecipeDetailDialog
         recipe={selectedRecipe}
         isOpen={showDetailDialog}
         onClose={() => setShowDetailDialog(false)}
       />
+
+      <Footer />
     </div>
   );
 };

@@ -1,20 +1,31 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
+import AdminLogin from '@/components/AdminLogin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash2, Plus, Clock, Users } from 'lucide-react';
+import { Pencil, Trash2, Plus, Clock, Users, LogOut } from 'lucide-react';
 import { useRecipes } from '@/hooks/useRecipes';
+import { useAuth } from '@/hooks/useAuth';
 import { Recipe } from '@/types';
 import CreateRecipeDialog from '@/components/CreateRecipeDialog';
 import { toast } from 'sonner';
 
 const Admin = () => {
   const { recipes, loading, error, addRecipe, updateRecipe, deleteRecipe } = useRecipes();
+  const { isAdmin, loginAdmin, logoutAdmin, checkAdminStatus } = useAuth();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
+
+  if (!isAdmin) {
+    return <AdminLogin onLogin={loginAdmin} />;
+  }
 
   const handleCreateRecipe = async (recipeData: any) => {
     const result = await addRecipe(recipeData);
@@ -54,6 +65,11 @@ const Admin = () => {
   const openEditDialog = (recipe: Recipe) => {
     setEditingRecipe(recipe);
     setShowEditDialog(true);
+  };
+
+  const handleLogout = () => {
+    logoutAdmin();
+    toast.success('Déconnexion réussie');
   };
 
   if (loading) {
@@ -97,13 +113,23 @@ const Admin = () => {
               Gérez vos recettes : créer, modifier, supprimer
             </p>
           </div>
-          <Button
-            onClick={() => setShowCreateDialog(true)}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nouvelle recette
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setShowCreateDialog(true)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nouvelle recette
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="text-red-600 border-red-600 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Déconnexion
+            </Button>
+          </div>
         </div>
 
         {recipes.length === 0 ? (
