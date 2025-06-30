@@ -74,11 +74,11 @@ const AddIngredientDialog: React.FC<AddIngredientDialogProps> = ({
     const newIngredient: Ingredient = {
       id: Date.now().toString(),
       name: formData.name,
-      category: formData.category.toLowerCase() as Ingredient['category'],
+      category: formData.category.toLowerCase(),
       quantity: parseFloat(formData.quantity),
-      unit: formData.unit as Ingredient['unit'],
+      unit: formData.unit,
       organic: formData.organic,
-      expiryDate: formData.expiry ? new Date(formData.expiry) : undefined
+      expiry_date: formData.expiry || undefined
     };
 
     onSave(newIngredient);

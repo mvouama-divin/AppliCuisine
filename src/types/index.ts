@@ -33,11 +33,14 @@ export interface Ingredient {
   unit: string;
   expiry_date?: string;
   category: string;
+  organic?: boolean;
 }
 
 export interface SearchFilters {
   difficulty?: string;
   mealType?: string;
   maxTime?: number;
+  maxPrepTime?: number;
   dietType?: string;
+  season?: string;
 }
