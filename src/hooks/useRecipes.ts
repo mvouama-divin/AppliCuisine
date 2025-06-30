@@ -1,6 +1,6 @@
-
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Recipe } from '@/types';
+import { supabase } from '@/lib/supabaseClient';
 
 // Données mockées pour les recettes
 const mockRecipes: Recipe[] = [
@@ -67,56 +67,76 @@ export const useRecipes = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchRecipes = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('recipes').select('*');
+    if (error) {
+      console.error('Erreur lors du chargement :', error.message);
+      setError("Erreur lors du chargement des recettes");
+    } else {
+      setRecipes(data as Recipe[]);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    // Simuler un chargement
-    setTimeout(() => {
-      setRecipes(mockRecipes);
-      setLoading(false);
-    }, 500);
+    fetchRecipes();
   }, []);
 
   const addRecipe = async (recipe: Omit<Recipe, 'id' | 'created_at' | 'updated_at'>) => {
-    try {
-      const newRecipe: Recipe = {
+    const { data, error } = await supabase.from('recipes').insert([
+      {
         ...recipe,
-        id: Date.now().toString(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      };
-      
-      setRecipes(prev => [newRecipe, ...prev]);
-      return { success: true, data: newRecipe };
-    } catch (err) {
-      console.error('Erreur lors de l\'ajout de la recette:', err);
-      return { success: false, error: 'Erreur lors de l\'ajout de la recette' };
+      }
+    ]).select();
+
+    if (error) {
+      console.error("Erreur d'insertion :", error.message);
+      return { success: false, error: error.message };
     }
+
+    if (data) {
+      setRecipes(prev => [data[0] as Recipe, ...prev]);
+      return { success: true, data: data[0] };
+    }
+
+    return { success: false, error: "Aucune donnée retournée" };
   };
 
   const updateRecipe = async (id: string, updates: Partial<Recipe>) => {
-    try {
-      const updatedRecipe = { ...updates, updated_at: new Date().toISOString() };
-      setRecipes(prev => prev.map(recipe => 
-        recipe.id === id ? { ...recipe, ...updatedRecipe } : recipe
-      ));
-      return { success: true, data: updatedRecipe };
-    } catch (err) {
-      console.error('Erreur lors de la modification de la recette:', err);
-      return { success: false, error: 'Erreur lors de la modification de la recette' };
+    const { data, error } = await supabase.from('recipes')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error("Erreur de mise à jour :", error.message);
+      return { success: false, error: error.message };
     }
+
+    if (data) {
+      setRecipes(prev => prev.map(r => (r.id === id ? data[0] as Recipe : r)));
+      return { success: true, data: data[0] };
+    }
+
+    return { success: false, error: "Mise à jour échouée" };
   };
 
   const deleteRecipe = async (id: string) => {
-    try {
-      setRecipes(prev => prev.filter(recipe => recipe.id !== id));
-      return { success: true };
-    } catch (err) {
-      console.error('Erreur lors de la suppression de la recette:', err);
-      return { success: false, error: 'Erreur lors de la suppression de la recette' };
+    const { error } = await supabase.from('recipes').delete().eq('id', id);
+    if (error) {
+      console.error("Erreur de suppression :", error.message);
+      return { success: false, error: error.message };
     }
+
+    setRecipes(prev => prev.filter(r => r.id !== id));
+    return { success: true };
   };
 
   const searchRecipes = (filters: any) => {
-    // Pour l'instant, retourner toutes les recettes
+    // TODO : Ajoute la logique si tu veux filtrer
     return recipes;
   };
 
@@ -128,6 +148,6 @@ export const useRecipes = () => {
     updateRecipe,
     deleteRecipe,
     searchRecipes,
-    refetch: () => setRecipes(mockRecipes)
+    refetch: fetchRecipes
   };
 };
