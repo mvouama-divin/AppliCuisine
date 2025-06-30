@@ -21,6 +21,8 @@ const Pantry = () => {
     { id: '4', name: 'Huile d\'olive', category: 'condiments', quantity: 500, unit: 'ml', expiryDate: new Date('2025-01-15'), organic: true },
   ]);
 
+  // pourquoi j'ai autant des probleme
+
   const categories = [...new Set(pantryItems.map(item => item.category))];
 
   const handleAddIngredient = (newIngredient: Ingredient) => {
