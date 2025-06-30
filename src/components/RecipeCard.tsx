@@ -21,7 +21,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   onViewMissingIngredients,
   availableIngredients = [] 
 }) => {
-  const totalTime = recipe.prepTime + recipe.cookTime;
+  const totalTime = recipe.prep_time + recipe.cook_time;
   
   const availableIngredientsCount = recipe.ingredients.filter(ingredient =>
     availableIngredients.some(available => 
@@ -37,18 +37,18 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       {/* Image */}
       <div className="relative overflow-hidden">
         <img
-          src={recipe.imageUrl || 'https://images.unsplash.com/photo-1546548970-71785318a17b?w=500'}
+          src={recipe.image_url || 'https://images.unsplash.com/photo-1546548970-71785318a17b?w=500'}
           alt={recipe.title}
           className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
         />
         
         {/* Badges overlay */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
-          <Badge className={`${canMakeRecipe ? 'bg-cuisine-green' : 'bg-cuisine-orange'} text-white`}>
+          <Badge className={`${canMakeRecipe ? 'bg-green-600' : 'bg-orange-500'} text-white`}>
             {canMakeRecipe ? 'Réalisable' : `${missingIngredients} ingrédient(s) manquant(s)`}
           </Badge>
           {recipe.difficulty && (
-            <Badge variant="secondary" className="bg-white/90 text-cuisine-orange-dark">
+            <Badge variant="secondary" className="bg-white/90 text-orange-600">
               {recipe.difficulty}
             </Badge>
           )}
@@ -67,7 +67,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       {/* Content */}
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-lg text-foreground group-hover:text-cuisine-orange transition-colors line-clamp-2">
+          <h3 className="font-semibold text-lg text-foreground group-hover:text-orange-500 transition-colors line-clamp-2">
             {recipe.title}
           </h3>
           {recipe.rating && (
@@ -94,14 +94,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           </div>
           <div className="flex items-center space-x-1">
             <ChefHat className="w-4 h-4" />
-            <span>{recipe.mealType}</span>
+            <span>{recipe.meal_type}</span>
           </div>
         </div>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1 mb-3">
           {recipe.tags.slice(0, 3).map(tag => (
-            <span key={tag} className="ingredient-tag">
+            <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
               {tag}
             </span>
           ))}
@@ -131,7 +131,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
               onClick={() => onViewMissingIngredients?.(recipe)}
               variant="outline"
               size="sm"
-              className="flex-1 text-cuisine-orange border-cuisine-orange hover:bg-cuisine-orange hover:text-white"
+              className="flex-1 text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
             >
               <AlertCircle className="w-4 h-4 mr-1" />
               Manquants
@@ -143,8 +143,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           onClick={() => onSelect?.(recipe)}
           className={`w-full transition-all duration-200 ${
             canMakeRecipe
-              ? 'bg-cuisine-green hover:bg-cuisine-green-dark text-white'
-              : 'bg-cuisine-orange hover:bg-cuisine-orange-dark text-white'
+              ? 'bg-green-600 hover:bg-green-700 text-white'
+              : 'bg-orange-500 hover:bg-orange-600 text-white'
           }`}
         >
           {canMakeRecipe ? 'Cuisiner maintenant' : 'Voir les détails'}

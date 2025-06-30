@@ -25,3 +25,19 @@ export interface RecipeIngredient {
   unit: string;
   optional?: boolean;
 }
+
+export interface Ingredient {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  expiry_date?: string;
+  category: string;
+}
+
+export interface SearchFilters {
+  difficulty?: string;
+  mealType?: string;
+  maxTime?: number;
+  dietType?: string;
+}
