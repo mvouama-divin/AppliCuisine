@@ -23,7 +23,7 @@ const RecipeDetailDialog: React.FC<RecipeDetailDialogProps> = ({
 }) => {
   if (!recipe) return null;
 
-  const totalTime = recipe.prepTime + recipe.cookTime;
+  const totalTime = recipe.prep_time + recipe.cook_time;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -36,7 +36,7 @@ const RecipeDetailDialog: React.FC<RecipeDetailDialogProps> = ({
           {/* Image */}
           <div className="w-full h-48 rounded-lg overflow-hidden">
             <img
-              src={recipe.imageUrl || 'https://images.unsplash.com/photo-1546548970-71785318a17b?w=500'}
+              src={recipe.image_url || 'https://images.unsplash.com/photo-1546548970-71785318a17b?w=500'}
               alt={recipe.title}
               className="w-full h-full object-cover"
             />
@@ -49,7 +49,7 @@ const RecipeDetailDialog: React.FC<RecipeDetailDialogProps> = ({
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center space-x-1">
               <Clock className="w-4 h-4" />
-              <span>{totalTime}min ({recipe.prepTime}min prep + {recipe.cookTime}min cuisson)</span>
+              <span>{totalTime}min ({recipe.prep_time}min prep + {recipe.cook_time}min cuisson)</span>
             </div>
             <div className="flex items-center space-x-1">
               <Users className="w-4 h-4" />
@@ -69,11 +69,10 @@ const RecipeDetailDialog: React.FC<RecipeDetailDialogProps> = ({
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2">
-            <Badge className="bg-cuisine-green text-white">{recipe.mealType}</Badge>
-            <Badge className="bg-cuisine-orange text-white">{recipe.dietType}</Badge>
+            <Badge className="bg-cuisine-green text-white">{recipe.meal_type}</Badge>
+            <Badge className="bg-cuisine-orange text-white">{recipe.diet_type}</Badge>
             <Badge variant="secondary">{recipe.difficulty}</Badge>
-            {recipe.season && <Badge variant="outline">{recipe.season}</Badge>}
-            {recipe.tags.map(tag => (
+            {recipe.tags?.map(tag => (
               <Badge key={tag} variant="outline">{tag}</Badge>
             ))}
           </div>
@@ -107,35 +106,6 @@ const RecipeDetailDialog: React.FC<RecipeDetailDialogProps> = ({
               ))}
             </ol>
           </div>
-
-          {/* Informations nutritionnelles */}
-          {recipe.nutritionInfo && (
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Informations nutritionnelles</h3>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded">
-                  <div className="font-bold text-cuisine-orange">{recipe.nutritionInfo.calories}</div>
-                  <div className="text-sm text-muted-foreground">Calories</div>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded">
-                  <div className="font-bold text-cuisine-green">{recipe.nutritionInfo.protein}g</div>
-                  <div className="text-sm text-muted-foreground">Protéines</div>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded">
-                  <div className="font-bold text-blue-600">{recipe.nutritionInfo.carbs}g</div>
-                  <div className="text-sm text-muted-foreground">Glucides</div>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded">
-                  <div className="font-bold text-purple-600">{recipe.nutritionInfo.fat}g</div>
-                  <div className="text-sm text-muted-foreground">Lipides</div>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded">
-                  <div className="font-bold text-green-600">{recipe.nutritionInfo.fiber}g</div>
-                  <div className="text-sm text-muted-foreground">Fibres</div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>
