@@ -17,7 +17,7 @@ import { Recipe, RecipeIngredient } from '@/types';
 interface CreateRecipeDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (recipe: Recipe) => void;
+  onSave: (recipe: Omit<Recipe, 'id' | 'created_at' | 'updated_at'>) => Promise<any>;
 }
 
 const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
@@ -28,25 +28,24 @@ const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    imageUrl: '',
-    prepTime: 0,
-    cookTime: 0,
+    image_url: '',
+    prep_time: 0,
+    cook_time: 0,
     servings: 1,
     difficulty: 'facile' as 'facile' | 'moyen' | 'difficile',
-    mealType: 'déjeuner' as 'petit-déjeuner' | 'déjeuner' | 'dîner' | 'collation',
-    season: 'printemps' as 'printemps' | 'été' | 'automne' | 'hiver',
-    dietType: 'classique' as 'végétarien' | 'végétalien' | 'halal' | 'casher' | 'keto' | 'sans_gluten' | 'classique',
+    meal_type: 'déjeuner' as 'petit-déjeuner' | 'déjeuner' | 'dîner' | 'collation',
+    diet_type: 'classique' as 'végétarien' | 'végétalien' | 'halal' | 'casher' | 'keto' | 'sans_gluten' | 'classique',
     tags: '',
   });
 
   const [ingredients, setIngredients] = useState<RecipeIngredient[]>([
-    { ingredientId: '', name: '', quantity: 0, unit: 'pièce' }
+    { name: '', quantity: 0, unit: 'pièce' }
   ]);
 
   const [instructions, setInstructions] = useState<string[]>(['']);
 
   const addIngredient = () => {
-    setIngredients([...ingredients, { ingredientId: '', name: '', quantity: 0, unit: 'pièce' }]);
+    setIngredients([...ingredients, { name: '', quantity: 0, unit: 'pièce' }]);
   };
 
   const removeIngredient = (index: number) => {
@@ -73,46 +72,44 @@ const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
     setInstructions(updated);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newRecipe: Recipe = {
-      id: Date.now().toString(),
+    const newRecipe = {
       title: formData.title,
       description: formData.description,
-      imageUrl: formData.imageUrl || undefined,
-      prepTime: formData.prepTime,
-      cookTime: formData.cookTime,
+      image_url: formData.image_url || undefined,
+      prep_time: formData.prep_time,
+      cook_time: formData.cook_time,
       servings: formData.servings,
       difficulty: formData.difficulty,
-      mealType: formData.mealType,
-      season: formData.season,
-      dietType: formData.dietType,
+      meal_type: formData.meal_type,
+      diet_type: formData.diet_type,
       ingredients: ingredients.filter(ing => ing.name.trim() !== ''),
       instructions: instructions.filter(inst => inst.trim() !== ''),
       tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
-      createdAt: new Date(),
     };
 
-    onSave(newRecipe);
-    onClose();
-    
-    // Reset form
-    setFormData({
-      title: '',
-      description: '',
-      imageUrl: '',
-      prepTime: 0,
-      cookTime: 0,
-      servings: 1,
-      difficulty: 'facile',
-      mealType: 'déjeuner',
-      season: 'printemps',
-      dietType: 'classique',
-      tags: '',
-    });
-    setIngredients([{ ingredientId: '', name: '', quantity: 0, unit: 'pièce' }]);
-    setInstructions(['']);
+    const result = await onSave(newRecipe);
+    if (result.success) {
+      onClose();
+      
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        image_url: '',
+        prep_time: 0,
+        cook_time: 0,
+        servings: 1,
+        difficulty: 'facile',
+        meal_type: 'déjeuner',
+        diet_type: 'classique',
+        tags: '',
+      });
+      setIngredients([{ name: '', quantity: 0, unit: 'pièce' }]);
+      setInstructions(['']);
+    }
   };
 
   return (
@@ -135,11 +132,11 @@ const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
               />
             </div>
             <div>
-              <Label htmlFor="imageUrl">URL de l'image</Label>
+              <Label htmlFor="image_url">URL de l'image</Label>
               <Input
-                id="imageUrl"
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                id="image_url"
+                value={formData.image_url}
+                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                 placeholder="https://..."
               />
             </div>
@@ -158,21 +155,21 @@ const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
           {/* Temps et portions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="prepTime">Temps de préparation (min)</Label>
+              <Label htmlFor="prep_time">Temps de préparation (min)</Label>
               <Input
-                id="prepTime"
+                id="prep_time"
                 type="number"
-                value={formData.prepTime}
-                onChange={(e) => setFormData({ ...formData, prepTime: parseInt(e.target.value) || 0 })}
+                value={formData.prep_time}
+                onChange={(e) => setFormData({ ...formData, prep_time: parseInt(e.target.value) || 0 })}
               />
             </div>
             <div>
-              <Label htmlFor="cookTime">Temps de cuisson (min)</Label>
+              <Label htmlFor="cook_time">Temps de cuisson (min)</Label>
               <Input
-                id="cookTime"
+                id="cook_time"
                 type="number"
-                value={formData.cookTime}
-                onChange={(e) => setFormData({ ...formData, cookTime: parseInt(e.target.value) || 0 })}
+                value={formData.cook_time}
+                onChange={(e) => setFormData({ ...formData, cook_time: parseInt(e.target.value) || 0 })}
               />
             </div>
             <div>
@@ -187,7 +184,7 @@ const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
           </div>
 
           {/* Sélections */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label>Difficulté</Label>
               <Select value={formData.difficulty} onValueChange={(value: any) => setFormData({ ...formData, difficulty: value })}>
@@ -203,7 +200,7 @@ const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
             </div>
             <div>
               <Label>Type de repas</Label>
-              <Select value={formData.mealType} onValueChange={(value: any) => setFormData({ ...formData, mealType: value })}>
+              <Select value={formData.meal_type} onValueChange={(value: any) => setFormData({ ...formData, meal_type: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -215,26 +212,9 @@ const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Saison</Label>
-              <Select value={formData.season} onValueChange={(value: any) => setFormData({ ...formData, season: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="printemps">Printemps</SelectItem>
-                  <SelectItem value="été">Été</SelectItem>
-                  <SelectItem value="automne">Automne</SelectItem>
-                  <SelectItem value="hiver">Hiver</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
             <div>
               <Label>Type de régime</Label>
-              <Select value={formData.dietType} onValueChange={(value: any) => setFormData({ ...formData, dietType: value })}>
+              <Select value={formData.diet_type} onValueChange={(value: any) => setFormData({ ...formData, diet_type: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -325,7 +305,7 @@ const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
             <div className="space-y-2">
               {instructions.map((instruction, index) => (
                 <div key={index} className="flex gap-2 items-start">
-                  <span className="flex-shrink-0 w-6 h-6 bg-cuisine-orange text-white rounded-full flex items-center justify-center text-sm font-medium mt-2">
+                  <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-medium mt-2">
                     {index + 1}
                   </span>
                   <Textarea
@@ -353,7 +333,7 @@ const CreateRecipeDialog: React.FC<CreateRecipeDialogProps> = ({
             <Button type="button" variant="outline" onClick={onClose}>
               Annuler
             </Button>
-            <Button type="submit" className="bg-cuisine-green hover:bg-cuisine-green-dark">
+            <Button type="submit" className="bg-green-600 hover:bg-green-700">
               <Save className="w-4 h-4 mr-2" />
               Créer la recette
             </Button>
