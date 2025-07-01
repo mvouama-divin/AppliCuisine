@@ -1,52 +1,49 @@
-
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { supabase } from '@/lib/supabaseClient';
+import { useContactMessages } from '@/hooks/useContactMessages';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, MessageSquare, ChefHat } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Contact = () => {
+  const { addMessage } = useContactMessages();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    type: 'commentaire',
+    type: 'commentaire' as const,
     message: '',
-    recipeRequest: ''
+    recipe_request: ''
   });
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const { name, email, type, message, recipeRequest } = formData;
+    const { name, email, type, message, recipe_request } = formData;
 
-  const { error } = await supabase.from('contact_messages').insert([
-    {
+    const result = addMessage({
       name,
       email,
       type,
       message,
-      recipe_request: recipeRequest || null,
+      recipe_request: recipe_request || undefined,
+    });
+
+    if (result.success) {
+      toast.success('Votre message a été envoyé avec succès !');
+      setFormData({
+        name: '',
+        email: '',
+        type: 'commentaire',
+        message: '',
+        recipe_request: ''
+      });
+    } else {
+      toast.error("Erreur lors de l'envoi du message");
     }
-  ]);
-
-  if (error) {
-    toast.error("Erreur lors de l'envoi du message : " + error.message);
-    return;
-  }
-
-  toast.success('Votre message a été envoyé avec succès !');
-  setFormData({
-    name: '',
-    email: '',
-    type: 'commentaire',
-    message: '',
-    recipeRequest: ''
-  });
-};
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({
@@ -137,9 +134,9 @@ const Contact = () => {
                     </label>
                     <Input
                       id="recipeRequest"
-                      name="recipeRequest"
+                      name="recipe_request"
                       type="text"
-                      value={formData.recipeRequest}
+                      value={formData.recipe_request}
                       onChange={handleChange}
                       className="w-full"
                       placeholder="Ex: Couscous royal, Tajine aux légumes..."
