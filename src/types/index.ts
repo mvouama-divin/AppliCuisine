@@ -1,3 +1,4 @@
+
 // Représente un ingrédient utilisé dans une recette
 export interface RecipeIngredient {
   name: string;
@@ -33,5 +34,32 @@ export interface Ingredient {
   name: string;
   quantity: number;
   unit: string;
-  expiry_date_
+  expiry_date: string;
+  category: string;
+  organic: boolean;
+}
+
+// Types pour les filtres de recherche
+export interface SearchFilters {
+  mealType?: string;
+  difficulty?: string;
+  maxPrepTime?: number;
+  dietType?: string;
+  season?: string;
+}
+
+// Types pour l'authentification utilisateur
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  created_at: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (email: string, password: string, name: string) => Promise<boolean>;
+  logout: () => void;
+  loading: boolean;
 }

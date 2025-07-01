@@ -1,11 +1,14 @@
+
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Mail, MessageSquare, ChefHat, Lightbulb, AlertTriangle } from 'lucide-react';
 import { useContactMessages } from '@/hooks/useContactMessages';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, MessageSquare, ChefHat } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Contact = () => {
@@ -13,187 +16,176 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    type: 'commentaire' as const,
+    type: '',
     message: '',
     recipe_request: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name || !formData.email || !formData.type || !formData.message) {
+      toast.error('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
 
-    const { name, email, type, message, recipe_request } = formData;
+    const messageData = {
+      name: formData.name,
+      email: formData.email,
+      type: formData.type as 'commentaire' | 'recette' | 'suggestion' | 'probleme',
+      message: formData.message,
+      ...(formData.type === 'recette' && formData.recipe_request && {
+        recipe_request: formData.recipe_request
+      })
+    };
 
-    const result = addMessage({
-      name,
-      email,
-      type,
-      message,
-      recipe_request: recipe_request || undefined,
-    });
-
+    const result = addMessage(messageData);
     if (result.success) {
       toast.success('Votre message a été envoyé avec succès !');
       setFormData({
         name: '',
         email: '',
-        type: 'commentaire',
+        type: '',
         message: '',
         recipe_request: ''
       });
     } else {
-      toast.error("Erreur lors de l'envoi du message");
+      toast.error('Erreur lors de l\'envoi du message');
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'recette': return <ChefHat className="w-5 h-5" />;
+      case 'suggestion': return <Lightbulb className="w-5 h-5" />;
+      case 'probleme': return <AlertTriangle className="w-5 h-5" />;
+      default: return <MessageSquare className="w-5 h-5" />;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-cuisine-cream">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-4">
-              Contactez <span className="text-orange-500">CuisineApp</span>
-            </h1>
-            <p className="text-gray-600">
-              Laissez-nous un commentaire ou demandez une recette spécifique
-            </p>
-          </div>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-4">
+            Contactez-<span className="gradient-text">nous</span>
+          </h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Nous sommes là pour vous aider ! Partagez vos commentaires, demandez une recette spécifique ou signalez un problème.
+          </p>
+        </div>
 
-          <Card className="bg-white shadow-lg">
+        <div className="max-w-2xl mx-auto">
+          <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-orange-500" />
-                Formulaire de Contact
+                <Mail className="w-5 h-5 text-orange-500" />
+                Envoyer un message
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       Nom complet *
                     </label>
                     <Input
-                      id="name"
-                      name="name"
-                      type="text"
                       value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="w-full"
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Votre nom"
+                      required
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       Email *
                     </label>
                     <Input
-                      id="email"
-                      name="email"
                       type="email"
                       value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="w-full"
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="votre@email.com"
+                      required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="type" className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-medium mb-2">
                     Type de message *
                   </label>
-                  <select
-                    id="type"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  >
-                    <option value="commentaire">Commentaire général</option>
-                    <option value="recette">Demande de recette</option>
-                    <option value="suggestion">Suggestion d'amélioration</option>
-                    <option value="probleme">Signaler un problème</option>
-                  </select>
+                  <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisissez le type de votre message" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="commentaire">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4" />
+                          Commentaire général
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="recette">
+                        <div className="flex items-center gap-2">
+                          <ChefHat className="w-4 h-4" />
+                          Demande de recette
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="suggestion">
+                        <div className="flex items-center gap-2">
+                          <Lightbulb className="w-4 h-4" />
+                          Suggestion d'amélioration
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="probleme">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4" />
+                          Signaler un problème
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {formData.type === 'recette' && (
                   <div>
-                    <label htmlFor="recipeRequest" className="block text-sm font-medium mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       Quelle recette souhaitez-vous ?
                     </label>
                     <Input
-                      id="recipeRequest"
-                      name="recipe_request"
-                      type="text"
                       value={formData.recipe_request}
-                      onChange={handleChange}
-                      className="w-full"
-                      placeholder="Ex: Couscous royal, Tajine aux légumes..."
+                      onChange={(e) => setFormData({ ...formData, recipe_request: e.target.value })}
+                      placeholder="Ex: Couscous royal, Tajine d'agneau..."
                     />
                   </div>
                 )}
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-medium mb-2">
                     Message *
                   </label>
                   <Textarea
-                    id="message"
-                    name="message"
                     value={formData.message}
-                    onChange={handleChange}
-                    required
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    placeholder="Décrivez votre demande en détail..."
                     rows={5}
-                    className="w-full"
-                    placeholder="Écrivez votre message ici..."
+                    required
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full bg-orange-500 hover:bg-orange-600"
-                >
+                <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600">
                   <Mail className="w-4 h-4 mr-2" />
                   Envoyer le message
                 </Button>
               </form>
             </CardContent>
           </Card>
-
-          <div className="mt-8 grid md:grid-cols-2 gap-6">
-            <Card className="bg-orange-50 border-orange-200">
-              <CardContent className="p-6 text-center">
-                <ChefHat className="w-12 h-12 text-orange-500 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Demandes de recettes</h3>
-                <p className="text-sm text-gray-600">
-                  Vous cherchez une recette spécifique ? Demandez-la nous et nous l'ajouterons !
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="p-6 text-center">
-                <MessageSquare className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Vos commentaires</h3>
-                <p className="text-sm text-gray-600">
-                  Partagez vos suggestions pour améliorer CuisineApp
-                </p>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };
