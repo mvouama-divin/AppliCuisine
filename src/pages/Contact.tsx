@@ -4,6 +4,7 @@ import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { supabase } from '@/lib/supabaseClient';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, MessageSquare, ChefHat } from 'lucide-react';
 import { toast } from 'sonner';
@@ -17,18 +18,35 @@ const Contact = () => {
     recipeRequest: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simuler l'envoi du formulaire
-    toast.success('Votre message a été envoyé avec succès !');
-    setFormData({
-      name: '',
-      email: '',
-      type: 'commentaire',
-      message: '',
-      recipeRequest: ''
-    });
-  };
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const { name, email, type, message, recipeRequest } = formData;
+
+  const { error } = await supabase.from('contact_messages').insert([
+    {
+      name,
+      email,
+      type,
+      message,
+      recipe_request: recipeRequest || null,
+    }
+  ]);
+
+  if (error) {
+    toast.error("Erreur lors de l'envoi du message : " + error.message);
+    return;
+  }
+
+  toast.success('Votre message a été envoyé avec succès !');
+  setFormData({
+    name: '',
+    email: '',
+    type: 'commentaire',
+    message: '',
+    recipeRequest: ''
+  });
+};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({
