@@ -1,17 +1,16 @@
-
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Users, Star, Plus, Eye } from 'lucide-react';
+import { Clock, Users, Star, Plus, Eye, Trash2 } from 'lucide-react';
 import { useRecipes } from '@/hooks/useRecipes';
 import { Recipe } from '@/types';
 import CreateRecipeDialog from '@/components/CreateRecipeDialog';
 import RecipeDetailDialog from '@/components/RecipeDetailDialog';
 
 const Recipes = () => {
-  const { recipes, loading, error, addRecipe } = useRecipes();
+  const { recipes, loading, error, addRecipe, deleteRecipe } = useRecipes(); // ajoute deleteRecipe ici
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
@@ -24,6 +23,16 @@ const Recipes = () => {
   const handleViewRecipe = (recipe: Recipe) => {
     setSelectedRecipe(recipe);
     setShowDetailDialog(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    const confirm = window.confirm("Voulez-vous vraiment supprimer cette recette ?");
+    if (!confirm) return;
+
+    const result = await deleteRecipe(id);
+    if (!result.success) {
+      alert('Erreur lors de la suppression: ' + result.error);
+    }
   };
 
   if (loading) {
@@ -111,12 +120,31 @@ const Recipes = () => {
                     <h3 className="font-semibold text-lg text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-2">
                       {recipe.title}
                     </h3>
-                    {recipe.rating && (
-                      <div className="flex items-center space-x-1 ml-2">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{recipe.rating}</span>
-                      </div>
-                    )}
+                    <div className="flex gap-2 items-center">
+                      {recipe.rating && (
+                        <div className="flex items-center space-x-1 ml-2">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-sm font-medium">{recipe.rating}</span>
+                        </div>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewRecipe(recipe)}
+                        aria-label={`Voir ${recipe.title}`}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(recipe.id)}
+                        aria-label={`Supprimer ${recipe.title}`}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
 
                   <p className="text-gray-600 text-sm mb-3 line-clamp-2">
@@ -143,14 +171,6 @@ const Recipes = () => {
                       </span>
                     ))}
                   </div>
-
-                  <Button
-                    onClick={() => handleViewRecipe(recipe)}
-                    className="w-full bg-orange-500 hover:bg-orange-600"
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Voir la recette
-                  </Button>
                 </CardContent>
               </Card>
             ))}
